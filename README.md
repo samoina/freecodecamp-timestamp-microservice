@@ -33,5 +33,53 @@ To check date validity, i create a function that checks if the date string can b
 
 `isNaN()` is a function that checks if a value is NaN and returns true if it is not a number. so !isNaN means that it is valid (double negation)
 
+```js
+new Date() ===> string representation of current date and time. same as new Date().toString()
+Date.now() ===? the milliseconds since epoch , January 1 1970 UTC
+
+```
+
+
+
+```js
+try {
+   if(dateString !=="" && isValidDate){
+    const timestamp = Date.parse(dateString);
+    console.log(`this is the Unix timestamp ${timestamp}`);
+  
+    const stringOfInputDate = new Date(dateString).toString();
+    console.log(`this is the string of the date input ${stringOfInputDate}`);
+  
+    res.json({
+      unix: timestamp,
+      utc: stringOfInputDate
+    })
+   } else if(!dateString){
+      const now =new Date();
+      
+      const hours= now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+
+      const currentTime = `${hours} : ${minutes} : ${ seconds}`;
+      console.log(currentTime)
+
+      res.json({
+        unix: currentTime,
+        utc: currentTime
+      })
+   } else {
+    res.json({
+      error: "Invalid Date"
+    })
+   }
+  
+   
+  } catch (error) {
+    res.json({
+      error: 'Error encountered'
+    })
+  }
+```
 
 

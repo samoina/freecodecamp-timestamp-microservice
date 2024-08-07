@@ -10,7 +10,7 @@ var morgan = require('morgan')
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC 
 var cors = require('cors');
-app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
+app.use(cors({ optionsSuccessStatus: 200 }));  // some legacy browsers choke on 204
 
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
@@ -24,72 +24,52 @@ app.get("/", function (req, res) {
 
 // your first API endpoint... 
 app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+  res.json({ greeting: 'hello API' });
 });
 
-app.get('/api/:date?', function(req, res) {
-
-  //destructure the input string from req.params object
-  const userInput = req.params.date;
-
-  //check date validity
-  const isValidDate = (input) => {
-    const dateToCheck = new Date(input);
-    return !isNaN(dateToCheck.getTime());
-  } 
-
-  //check if it is a timestamp to eliminate invalid dates
-  const isTimestamp = (input) => {
-    return !isNaN(input) && Number.isInteger(Number(input))
-  }
-
+//empty date parameter, instruction says to give current time with unix & utc key but this wouldnt work in my approach
+app.get('/api', (req, res) => {
   try {
-   if(!userInput) {
-    //this is an empty route
-    const now =new Date();
-      
-    const hours= now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const seconds = now.getSeconds().toString().padStart(2, '0');
-
-    const currentTime = `${hours}:${minutes}:${ seconds}`;
-    console.log(currentTime)
-
-    res.json({
-      unix: currentTime,
-      utc: currentTime
-    })
-   } else if(userInput && isValidDate(userInput)){
-    //this is a valid date
-    const timestamp = Date.parse(userInput);
-    console.log(`this is the Unix timestamp ${timestamp}`);
-   
-  
-    const stringOfInputDate = new Date(userInput).toString();
-    console.log(`this is the string of the date input ${stringOfInputDate}`);
-  
-    res.json({
-      unix: timestamp,
-      utc: stringOfInputDate
-    })    
-   } else if(userInput && isTimestamp(userInput)) {
-    //this is for a valid timestamp: return unix as the user input and utc as string date
-
-    const dateFromtimeStamp = new Date(Number(userInput)).toUTCString();
-    console.log(typeof userInput);
-    res.json({
-      unix: userInput,
-      utc: dateFromtimeStamp
-    })    
-   } else {
-    res.json({
-      error: 'Invalid Date'
-    })
-   }
-   
+    res.json(
+      {
+        "unix": new Date().getTime(),
+        "utc": new Date().toUTCString()
+      }
+    );
   } catch (error) {
     res.json({
-      error: 'Error encountered'
+      "error": 'Error encountered'
+    })
+  }
+})
+
+//date parameter
+app.get('/api/:date_string?', (req, res) => {
+  const date_string = req.params.date_string;
+  //to successfully parse dates & check if it is a valid date
+  let date = new Date(date_string);
+
+
+  try {
+    //this check is for the timestamp, in which case re-assign date and create a date corresponding to the specific timestamp
+   if(date.toString() === "Invalid Date"){
+    date = new Date(parseInt(date_string))
+   }
+   //if it doesnt pass the check for the timestamp, then return an invalid date as the response, else return for the timestamp
+   if(date.toString() === "Invalid Date"){
+    res.json({
+      "error": "Invalid Date"
+    })
+   } else {
+    res.json({
+      "unix": date.getTime(),
+      "utc":date.toUTCString()
+    })
+   }
+
+  } catch (error) {
+    res.json({
+      "error": 'Error encountered'
     })
   }
 })
