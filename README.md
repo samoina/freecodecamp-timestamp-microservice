@@ -82,4 +82,37 @@ try {
   }
 ```
 
+I wound up discarding this approach because it wouldnt pass the tests and then i discovered that the endpoints for the empty date parameter and the dates are separate.
 
+For the endpoint with a date parameter, there are three options: a valid date, an invalid date and the timestamp. the latter really confused me, but i researched and found a way to do it as below:
+
+1. First parse the date using `new Date(date_string)` to check if it is a valid date. it parses the input into a Date object. From the Date Object, convert it to a .toString(), if it is a valid date, it returns a date string, else it returns 'Invalid Date'.
+
+The latter will also happen for the timestamp, hence the need to check. so, if `.toString()` returns an Invalid Date, reassign date to a new Date and pass in the timestamp
+
+
+```js
+  const date_string = req.params.date_string;
+  //to successfully parse dates & check if it is a valid date object
+  let date = new Date(date_string);
+
+     if(date.toString() === "Invalid Date"){
+    date = new Date(parseInt(date_string))
+   }
+```
+
+if, after the second parsing (assuming it is a timestamp), and it still fails, i sends an error message. else, it gets the timestamp and the odate in string format
+
+```js
+      if (date.toString() === 'Invalid Date') {
+        return res.json({
+            "error": "Invalid Date"
+        });
+    } else {
+        return res.json({
+            "unix": date.getTime(),
+            "utc": date.toUTCString()
+        });
+    }
+
+```

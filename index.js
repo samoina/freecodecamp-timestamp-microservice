@@ -46,7 +46,7 @@ app.get('/api', (req, res) => {
 //date parameter
 app.get('/api/:date_string?', (req, res) => {
   const date_string = req.params.date_string;
-  //to successfully parse dates & check if it is a valid date
+  //to successfully parse dates & check if it is a valid date object
   let date = new Date(date_string);
 
 
